@@ -1,309 +1,337 @@
-//
-//  main.cpp
-//  Sample Sorting Function
-//
-//  Created by Sitthiphol Yuwanaboon on 12/20/20.
-//
-#include <iostream>
-#include <ncurses.h>
-using namespace std;
+//Yuwanaboon, Sitthiphol:
+//Lab 9
 
 
-class stack{
-private:
-    
-    int top;
-    int arr[5];
-
-public:
-    
-    stack(){
-        top=-1;
-        for(int i= 0; i<5;i++){
-            arr[i]=0;
-        }
-    }
-        bool isEmpty(){
-            if(top==-1)
-                return true;
-            else
-                return false;
-        }
-
-    bool isFull(){
-        if(top==4)
-            return true;
-        else
-            return false;
-    }
-    void push(int val){
-
-        if(isFull()){
-            cout << "Stack OVerFlow" << endl;
-        }
-        else{
-            top++;
-            arr[top]= val;
-
-        }
-    }
-    int pop(){
-        if(isEmpty()){
-            cout << "Stack underFlow" << endl;
-            return 0;
-            }
-        else{
-            int popValue =arr[top];
-            arr[top]=0;
-            top=-1;
-            return popValue;
-        }
-    }
-    int count(){
+/****Intructor feedback DO NOT DELETE:
+NG 6/3/21 0/100
 
 
-        return(top+1);
+-- not approved
+-- does not compy with the assignment description
 
-    }
-    int peek(int pos)
-    {
-        if(isEmpty())
-        {
-            cout << "Stack underFlow" << endl;
-            return 0;
-        }
-        else
-        {
-            return arr[pos];
-        }
-    }
-    void change(int pos, int val)
-    {
-        arr[pos]=val;
-        cout <<"value changed at location " << pos << endl;
-    }
-    void display()
-    {
-        cout << "All values in the stack are " << endl;
+****/
+#include "Warehouse.h"
+#include<limits>
 
-        for (int i =4; i>=0;i--)
-        {
-            cout << arr[i]<<endl;
-        }
-    }
-};
+void GetOrderInput(int& count, int &OrderStatus);
+void GetDeliveryInput(int& count, double& cost);
 
-int main(){
-
-
-    stack s1;
-    int option, position,value;
+int main()
+{
+	Warehouse Manager;
+  menuOptions UserInput;
+	cout << fixed << showpoint << setprecision(2);
+  int TempInput;
+	int count = 0;
+	double cost = 0;
+	int OrderStatus = 0;
+  
+	do
+	{
+		cout << "\nMain menu options...\n"
+            << "1) Submit a delivery\n"
+			<< "2) Display the details of the inventory on hand\n"
+			<< "3) Submit a new order\n"
+			<< "4) Display the details of the outstanding orders\n"
+			<< "5) Close the day and process back orders(if any) and orders received on that day\n"
+			<< "6) Quit the program\n"
+			<< "Enter input: ";
+      cin >> TempInput;
+		
+    UserInput = (enum menuOptions)TempInput;
 
 
-    do{
-        
-        cout <<"what operation do you want to perform? Select Option number Enter 0 to Exit" << endl;
-        cout<<"1 push "<< endl;
-        cout<<"2 pop "<< endl;
-        cout<<"3 isEmpty "<< endl;
-        cout<<"4 isFull "<< endl;
-        cout<<"5 Peek "<< endl;
-        cout<<"6 count "<< endl;
-        cout<<"7 Change "<< endl;
-        cout<<"8 display "<< endl;
-        cout<<"9 clear Screen "<<endl <<endl;
-        cin >>option;
-        
-        switch (option) {
-            case 0:
-                break;
+		switch (UserInput)
+		{
+		case Delivery: // Option to receive a delivery
+			// assign a unique delivery number for each new delivery
+			GetDeliveryInput(count, cost);
+			Manager.EnqueueDelivery(count, cost);
+			break;
+		case DeliveryQueue: // Option to display the details of the inventory on hand
+			Manager.PrintDeliveryQueue();
+			break;
+		case Order:
+			// option to receive a new order
+			GetOrderInput(count, OrderStatus);
+			Manager.EnqueueOrder(count, OrderStatus);
+			break;
+		case OrderQueue:
+			Manager.PrintOrderQueue();
+			break;
+		case TotalOrderThatDay: // option to close a day and process back orders and orders received on that day
+			Manager.PrintOrderQueue();
+			while (Manager.OrderSize() > Manager.InventorySize())
+			{
+				cout << "No back orders; there is not enough inventory to ship all orders; add more inventory!\n";
+				GetDeliveryInput(count, cost);
+				Manager.EnqueueDelivery(count, cost);
+			}
+      Manager.summary();
+			Manager.ProcessOrder();
+			// Show inventory on hand after day's orders have been processed.
+			Manager.PrintDeliveryQueue();
+     break;
+		case Quit:
+			cout << "Quitting program...\n";
+			break;	
+		default:
+			cin.clear();
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			cout << "Invalid input, please enter a valid menu option.\n";
+			break;
+		}
+	} while (UserInput != Quit);
+	return 0;
+}
 
-            case 1:
-                cout<<"enter an item value to push in the stack"<< endl;
-                cin>>value;
-                s1.push(value);
-                break;
-            case 2:
-                
-                cout<<"Pop function called Popped Value"<< s1.pop()<<endl;
-                break;
-            case 3:
-               
-                if (s1.isEmpty()) {
-                    cout<< "Stack is Empty "<< endl;
+// Function gets order count input from user
+// Pre: None
+// Post: Order Count is used to call PushOrderQueue(count), to push a new node onto the order queue
+void GetOrderInput(int& count, int &OrderStatus)
+{
+	int input;
+	cout << "How many widgets would you like to order: ";
+	cin >> count;
+	while (cin.fail() || count <= 0)
+	{
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		cout << "Enter an whole number...\n"
+			<< "How many widgets would you like to order: ";
+		cin >> count;
+	}
 
-                }
-                else
-                    cout <<"Stack is not Empty "<< endl;
-                break;
-                
-            case 4:
-                if (s1.isFull()) {
-                    cout<< "Stack is Full "<< endl;
+	cout << "\nWhat type of delivery would you like?\n"
+		<< "1) extreme rush orders -  filled before  any other order; 100% markup\n"
+		<< "2) expedite rush orders- filled after extreme rush orders but before standard; 40% markup\n"
+		<< "3) standard orders -  filled in the order  received, 20% markup\n"
+		<< "Enter a valid input: ";
+	cin >> input;
+	while (cin.fail() || input < 1 || input > 3)
+	{
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		cout << "Enter a valid input for the type of delivery: ";
+		cin >> input;
+	}
 
-                }
-                else
-                    cout <<"Stack is not full "<< endl;
-                break;
-                
-            case 5:
-                cout<<"Enter postion of item you want to peek:  "<< endl;
-                cin >> position;
-                cout<<"Peek function called "<<position<<" is "<<s1.peek(position)<< endl;
+	switch (input)
+	{
+	case 1:
+		OrderStatus = Warehouse::Extreme;
+		break;
+	case 2:
+		OrderStatus = Warehouse::Expedite;
+		break;
+	case 3:
+		OrderStatus = Warehouse::Standard;
+		break;
+	default:
+		break;
+	}
+	cout << "\n";
+}
 
-                break;
-                
-            case 6:
-                cout<<"count Function called - number of item in the stack are: "<< s1.count()<<endl;
-                break;
-                
-            case 7:
-                cout<<"Chage function called"<<endl;
-                cout <<"Enter position of item you want to change : ";
-                cin>>position;
-                cout << endl;
-                cout <<"Enter value that you want to change: ";
-                cin >> value;
-                s1.change(position, value);
-                break;
-            case 8:
-                cout<<"display function called "<<endl;
-                s1.display();
-                
-                break;
-            case 9:
-                system("clear");
-                
-                break;
-                
-            default:
-                cout <<"Enter proper option number: "<< endl;
-
-        }
-    }
-    while(option!=0);
-
-
-
-    return 0;
-
-
+// Function gets delivery count and delivery cost to the warehouse input from user
+// Pre: None
+// Post: Delivery Count and delivery cost is used to call PushDeliveryQueue(count, cost),
+// to push a new node onto the delivery queue
+void GetDeliveryInput(int& count, double& cost)
+{
+	cout << "What is the delivery count: ";
+	while (!(cin >> count) || (count <= 0))
+	{
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		cout << "Enter a positive whole number...\n"
+			<< "What is the delivery count: ";
+	}
+	cout << "What was the delivery cost: $";
+	while (!(cin >> cost) || (cost <= 0))					// allow cost to equal 0
+	{
+		cin.clear();
+		cin.ignore(numeric_limits<streamsize>::max(), '\n');
+		cout << "Enter a positive number...\n"
+			<< "What was the delivery cost: $";
+	}
+	cout << "\n";
 }
 
 
+// clang++-7 -pthread -std=c++17 -o main Warehouse.cpp main.cpp
+//  ./main
+
+// Main menu options...
+// 1) Submit a delivery
+// 2) Display the details of the inventory on hand
+// 3) Submit a new order
+// 4) Display the details of the outstanding orders
+// 5) Close the day and process back orders(if any) and orders received on that day
+// 6) Quit the program
+// Enter input: 1
+// What is the delivery count: 10
+// What was the delivery cost: $10
+
+// Delivery #1 of 10 widgets, has been added to the delivery list.
+// Cost to the warehouse:                       10.00
+
+
+// Main menu options...
+// 1) Submit a delivery
+// 2) Display the details of the inventory on hand
+// 3) Submit a new order
+// 4) Display the details of the outstanding orders
+// 5) Close the day and process back orders(if any) and orders received on that day
+// 6) Quit the program
+// Enter input: 2
+
+// Details of Inventory on hand
+// Number of widgets in stock:                     10
+// Delivery Number:                                 1
+// Delivery Count:                                 10
+// Cost to the warehouse (per widget):          10.00
 
 
 
+// Main menu options...
+// 1) Submit a delivery
+// 2) Display the details of the inventory on hand
+// 3) Submit a new order
+// 4) Display the details of the outstanding orders
+// 5) Close the day and process back orders(if any) and orders received on that day
+// 6) Quit the program
+// Enter input: 3
+// How many widgets would you like to order: 10
+
+// What type of delivery would you like?
+// 1) extreme rush orders -  filled before  any other order; 100% markup
+// 2) expedite rush orders- filled after extreme rush orders but before standard; 40% markup
+// 3) standard orders -  filled in the order  received, 20% markup
+// Enter a valid input: 1
+
+// Order #1 of 10 widgets, of Extreme Rush Order has been added as an order to be fullfilled by the warehouse.
+
+
+// Main menu options...
+// 1) Submit a delivery
+// 2) Display the details of the inventory on hand
+// 3) Submit a new order
+// 4) Display the details of the outstanding orders
+// 5) Close the day and process back orders(if any) and orders received on that day
+// 6) Quit the program
+// Enter input: 4
+
+// Details of the outstanding orders
+// Number of widgets that have been shipped:        0
+// Number of widgets in queue:                     10
+
+// Order Number:                                    1
+// Order Count:                                    10
+// Order Priority:                 Extreme Rush Order
 
 
 
+// Main menu options...
+// 1) Submit a delivery
+// 2) Display the details of the inventory on hand
+// 3) Submit a new order
+// 4) Display the details of the outstanding orders
+// 5) Close the day and process back orders(if any) and orders received on that day
+// 6) Quit the program
+// Enter input: 5
+
+// Details of the outstanding orders
+// Number of widgets that have been shipped:        0
+// Number of widgets in queue:                     10
+
+// Order Number:                                    1
+// Order Count:                                    10
+// Order Priority:                 Extreme Rush Order
 
 
 
+// ************** SUMMARY ************
+
+// Total Orders: 1
+// Total cost to warehouse of all 1 orders: 100.00
+// Total cost to customers of all 1 orders: 200.00
+// Total profit of all 1 orders: 100.00
+
+// *******************************************************
+
+// Order Number:                                   1
+// Total Quantity Shipped:                        10
+// Qty Ordered:                                   10
+// Rush Status:                    Extreme Rush Order
+// % MakeUp                                    100.00%
+// Total cost to the warehouse:                100.00
+// Total cost to the customer:                 200.00
+// Profit for this shipment:                   100.00
+
+// Order#1 Details:
+// Qty     UnitPrice   CostToWarehouse   CostToCustomer
+// 10      10.00       100.00            200.00
+
+// *******************************************************
 
 
+// Sorry, currently no orders can be fulfilled right now.
 
 
+// Details of Inventory on hand
+// Number of widgets in stock:                      0
+// No widgets are currently in the inventory...
 
 
+// Main menu options...
+// 1) Submit a delivery
+// 2) Display the details of the inventory on hand
+// 3) Submit a new order
+// 4) Display the details of the outstanding orders
+// 5) Close the day and process back orders(if any) and orders received on that day
+// 6) Quit the program
+// Enter input: 
 
 
+// Main menu options...
+// 1) Submit a delivery
+// 2) Display the details of the inventory on hand
+// 3) Submit a new order
+// 4) Display the details of the outstanding orders
+// 5) Close the day and process back orders(if any) and orders received on that day
+// 6) Quit the program
+// Enter input: 5
+
+// Details of the outstanding orders
+// Number of widgets that have been shipped:       10
+// Number of widgets in queue:                      0
+
+// Order list is empty.
 
 
+// ************** SUMMARY ************
+
+// Total Orders: 0
+// Total cost to warehouse of all 0 orders: 0.00
+// Total cost to customers of all 0 orders: 0.00
+// Total profit of all 0 orders: 0.00
+
+// Sorry, currently no orders can be fulfilled right now.
 
 
+// Details of Inventory on hand
+// Number of widgets in stock:                      0
+// No widgets are currently in the inventory...
 
 
-
-
-
-
-
-
-//void merge(int arr[],int l, int m, int r){
-//    int i= l;
-//    int j= m+1;
-//    int k =l;
-//    int size = (r-l)+1;
-//    int temp[size];
-//
-//
-//    while (i<=m&& j<=r){
-//        if (arr[i]<= arr[j]){
-//            temp[k] = arr[i];
-//            i++;
-//            k++;
-//        }
-//        else{
-//            temp[k] = arr[j];
-//            j++;
-//            k++;
-//        }
-//    }
-//    while(i<=m){
-//        temp[k] = arr[i];
-//        i++;
-//        k++;
-//    }
-//    while(j<=r){
-//        temp[k] = arr[j];
-//        j++;
-//        k++;
-//    }
-//    for (int s= l;s<r;s++){
-//        arr[s]= temp[s];
-//    }
-//}
-//
-//
-//
-//
-//
-//void mergesort(int arr[],int l, int r){
-//    if (l<r){
-//        int m = (l+r)/2;
-//        mergesort (arr,l,m);
-//        mergesort (arr,m+1,r);
-//        merge (arr,l,m,r);
-//    }
-//}
-//
-//
-//
-//
-//int main() {
-//
-//    int size;
-//    cout << "enter size of array: " << endl;
-//    cin >> size;
-//
-//    cout << "Size of element is " << size << endl;
-//
-//    int myarr[size];
-//    cout << "enter element of array: " << endl;
-//    for (int  i =0; i< size-1; i++){
-//        cin >> myarr[i];
-//
-//    }
-//
-//    cout << endl;
-//
-//    // before sourcing
-//    for (int  i =0; i<size-1; i++){
-//        cout  << myarr[i] <<" ";
-//
-//    }
-//    cout << endl;
-//
-//    cout << "after sourcing " << endl;
-//
-//    mergesort(myarr,0,size-1);
-//    // after sourcing
-//    for (int  i =0; i<size; i++){
-//        cout << myarr[i] << " ";
-//
-//    }
-//    cout << endl << endl;
-//
-//    return 0;
-//}
+// Main menu options...
+// 1) Submit a delivery
+// 2) Display the details of the inventory on hand
+// 3) Submit a new order
+// 4) Display the details of the outstanding orders
+// 5) Close the day and process back orders(if any) and orders received on that day
+// 6) Quit the program
+// Enter input: 6
+// Quitting program...
+//  

@@ -1,309 +1,170 @@
+
+//  Created by Sitthiphol Yuwanaboon 
+//  CS 136 Lab 7 Graph
 //
-//  main.cpp
-//  Sample Sorting Function
-//
-//  Created by Sitthiphol Yuwanaboon on 12/20/20.
-//
+// 
+/****Intructor feedback DO NOT DELETE:
+45/100
+-- output -10
+-- memory management try/catch -10
+--const -10
+unnecessary function calls-5
+function definitions inside main -10
+-- implementation/design/logic -10
+****/
+
+
+#include "GraphType.h"
 #include <iostream>
-#include <ncurses.h>
 using namespace std;
 
+// function definition of EdgeExists
+// bool EdgeExists(VertexType, VertexType);
 
-class stack{
-private:
-    
-    int top;
-    int arr[5];
+// function definition of DeleteEdge
+// void DeleteEdge(VertexType, VertexType);
 
-public:
-    
-    stack(){
-        top=-1;
-        for(int i= 0; i<5;i++){
-            arr[i]=0;
-        }
-    }
-        bool isEmpty(){
-            if(top==-1)
-                return true;
-            else
-                return false;
-        }
+template<class VertexType>
+GraphType<VertexType>::GraphType()
+// Post: Arrays of size 50 are dynamically allocated for  
+//       marks and vertices.  numVertices is set to 0; 
+//       maxVertices is set to 50.
+{
+  numVertices = 0;
+  maxVertices = 50;
+  vertices = new VertexType[50];
+  marks = new bool[50];
+}
 
-    bool isFull(){
-        if(top==4)
-            return true;
-        else
-            return false;
-    }
-    void push(int val){
+template<class VertexType>
+GraphType<VertexType>::GraphType(int maxV)
+// Post: Arrays of size maxV are dynamically allocated for  
+//       marks and vertices.  
+//       numVertices is set to 0; maxVertices is set to maxV.
+{
+  numVertices = 0;
+  maxVertices = maxV;
+  vertices = new VertexType[maxV];
+  marks = new bool[maxV];
+}
 
-        if(isFull()){
-            cout << "Stack OVerFlow" << endl;
-        }
-        else{
-            top++;
-            arr[top]= val;
+template<class VertexType>
+// Post: arrays for vertices and marks have been deallocated.
+GraphType<VertexType>::~GraphType()
+{
+  delete [] vertices;
+  delete [] marks;
+}
+const int NULL_EDGE = 0;
 
-        }
-    }
-    int pop(){
-        if(isEmpty()){
-            cout << "Stack underFlow" << endl;
-            return 0;
-            }
-        else{
-            int popValue =arr[top];
-            arr[top]=0;
-            top=-1;
-            return popValue;
-        }
-    }
-    int count(){
+template<class VertexType>
+void GraphType<VertexType>::AddVertex(VertexType vertex)
+// Post: vertex has been stored in vertices.
+//       Corresponding row and column of edges has been set 
+//       to NULL_EDGE.
+//       numVertices has been incremented.
+{
+  vertices[numVertices] = vertex;
 
+  for (int index = 0; index < numVertices; index++)
+  {
+    edges[numVertices][index] = NULL_EDGE;
+    edges[index][numVertices] = NULL_EDGE;
+  }
+  numVertices++;
+}
+template<class VertexType>
+int IndexIs(VertexType* vertices, VertexType vertex)
+// Post: Returns the index of vertex in vertices.
+{
+  int index = 0;
 
-        return(top+1);
+  while (!(vertex == vertices[index]))
+    index++;  
+  return index;
+}       
 
-    }
-    int peek(int pos)
-    {
-        if(isEmpty())
-        {
-            cout << "Stack underFlow" << endl;
-            return 0;
-        }
-        else
-        {
-            return arr[pos];
-        }
-    }
-    void change(int pos, int val)
-    {
-        arr[pos]=val;
-        cout <<"value changed at location " << pos << endl;
-    }
-    void display()
-    {
-        cout << "All values in the stack are " << endl;
+template<class VertexType>
+void GraphType<VertexType>::AddEdge(VertexType fromVertex,
+     VertexType toVertex, int weight)
+// Post: Edge (fromVertex, toVertex) is stored in edges.
+{
+  int row;
+  int col;
 
-        for (int i =4; i>=0;i--)
-        {
-            cout << arr[i]<<endl;
-        }
-    }
-};
+  row = IndexIs(vertices, fromVertex);
+  col = IndexIs(vertices, toVertex);
+  edges[row][col] = weight;
+}
+
+template<class VertexType>
+int GraphType<VertexType>::WeightIs
+     (VertexType fromVertex, VertexType toVertex)
+// Post: Returns the weight associated with the edge 
+//       (fromVertex, toVertex).
+{
+  int row;
+  int col;
+
+  row = IndexIs(vertices, fromVertex);
+  col = IndexIs(vertices, toVertex);
+  return edges[row][col];
+}
+
+template<class VertexType>
+void GraphType<VertexType>::GetToVertices(VertexType vertex, 
+     QueType<VertexType>& adjVertices)
+// Post: 
+{
+  int fromIndex;
+  int toIndex;
+
+  fromIndex = IndexIs(vertices, vertex);
+  for (toIndex = 0; toIndex < numVertices; toIndex++)
+    if (edges[fromIndex][toIndex] != NULL_EDGE)
+      adjVertices.Enqueue(vertices[toIndex]);
+}     
+
+template<class VertexType>
+bool GraphType<VertexType>::EdgeExists(VertexType fromVertex, VertexType toVertex)
+// POST: checks if an edge exists between 2 vertices and return a boolean value
+{
+  if(WeightIs(fromVertex, toVertex) != 0)
+	return true;
+  return false;
+}
+
+template<class VertexType>
+void GraphType<VertexType>::DeleteEdge(VertexType fromVertex, VertexType toVertex)
+// POST: removes an edge between 2 vertices
+{
+  AddEdge(fromVertex, toVertex, 0);
+}
 
 int main(){
 
-
-    stack s1;
-    int option, position,value;
-
-
-    do{
-        
-        cout <<"what operation do you want to perform? Select Option number Enter 0 to Exit" << endl;
-        cout<<"1 push "<< endl;
-        cout<<"2 pop "<< endl;
-        cout<<"3 isEmpty "<< endl;
-        cout<<"4 isFull "<< endl;
-        cout<<"5 Peek "<< endl;
-        cout<<"6 count "<< endl;
-        cout<<"7 Change "<< endl;
-        cout<<"8 display "<< endl;
-        cout<<"9 clear Screen "<<endl <<endl;
-        cin >>option;
-        
-        switch (option) {
-            case 0:
-                break;
-
-            case 1:
-                cout<<"enter an item value to push in the stack"<< endl;
-                cin>>value;
-                s1.push(value);
-                break;
-            case 2:
-                
-                cout<<"Pop function called Popped Value"<< s1.pop()<<endl;
-                break;
-            case 3:
-               
-                if (s1.isEmpty()) {
-                    cout<< "Stack is Empty "<< endl;
-
-                }
-                else
-                    cout <<"Stack is not Empty "<< endl;
-                break;
-                
-            case 4:
-                if (s1.isFull()) {
-                    cout<< "Stack is Full "<< endl;
-
-                }
-                else
-                    cout <<"Stack is not full "<< endl;
-                break;
-                
-            case 5:
-                cout<<"Enter postion of item you want to peek:  "<< endl;
-                cin >> position;
-                cout<<"Peek function called "<<position<<" is "<<s1.peek(position)<< endl;
-
-                break;
-                
-            case 6:
-                cout<<"count Function called - number of item in the stack are: "<< s1.count()<<endl;
-                break;
-                
-            case 7:
-                cout<<"Chage function called"<<endl;
-                cout <<"Enter position of item you want to change : ";
-                cin>>position;
-                cout << endl;
-                cout <<"Enter value that you want to change: ";
-                cin >> value;
-                s1.change(position, value);
-                break;
-            case 8:
-                cout<<"display function called "<<endl;
-                s1.display();
-                
-                break;
-            case 9:
-                system("clear");
-                
-                break;
-                
-            default:
-                cout <<"Enter proper option number: "<< endl;
-
-        }
-    }
-    while(option!=0);
-
-
-
-    return 0;
-
-
+	GraphType<int> g(4);
+	
+	g.AddVertex(1);
+	g.AddVertex(2);
+	g.AddVertex(3);
+	g.AddVertex(4);
+	
+	g.AddEdge(1, 2, 5);
+	g.AddEdge(2, 3, 7);
+	g.AddEdge(3, 4, 8);
+	
+	cout<<g.WeightIs(1, 2)<<endl;
+	cout<<g.WeightIs(2, 3)<<endl;
+	cout<<g.WeightIs(3, 1)<<endl;
+	
+	if(g.EdgeExists(1, 4)) cout<<"Yes"<<endl;
+	else cout<<"No"<<endl;
+	
+	g.DeleteEdge(1, 2);
+	
+	if(g.EdgeExists(1, 2)) cout<<"Yes"<<endl;
+	else cout<<"No"<<endl;
+	
+	return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//void merge(int arr[],int l, int m, int r){
-//    int i= l;
-//    int j= m+1;
-//    int k =l;
-//    int size = (r-l)+1;
-//    int temp[size];
-//
-//
-//    while (i<=m&& j<=r){
-//        if (arr[i]<= arr[j]){
-//            temp[k] = arr[i];
-//            i++;
-//            k++;
-//        }
-//        else{
-//            temp[k] = arr[j];
-//            j++;
-//            k++;
-//        }
-//    }
-//    while(i<=m){
-//        temp[k] = arr[i];
-//        i++;
-//        k++;
-//    }
-//    while(j<=r){
-//        temp[k] = arr[j];
-//        j++;
-//        k++;
-//    }
-//    for (int s= l;s<r;s++){
-//        arr[s]= temp[s];
-//    }
-//}
-//
-//
-//
-//
-//
-//void mergesort(int arr[],int l, int r){
-//    if (l<r){
-//        int m = (l+r)/2;
-//        mergesort (arr,l,m);
-//        mergesort (arr,m+1,r);
-//        merge (arr,l,m,r);
-//    }
-//}
-//
-//
-//
-//
-//int main() {
-//
-//    int size;
-//    cout << "enter size of array: " << endl;
-//    cin >> size;
-//
-//    cout << "Size of element is " << size << endl;
-//
-//    int myarr[size];
-//    cout << "enter element of array: " << endl;
-//    for (int  i =0; i< size-1; i++){
-//        cin >> myarr[i];
-//
-//    }
-//
-//    cout << endl;
-//
-//    // before sourcing
-//    for (int  i =0; i<size-1; i++){
-//        cout  << myarr[i] <<" ";
-//
-//    }
-//    cout << endl;
-//
-//    cout << "after sourcing " << endl;
-//
-//    mergesort(myarr,0,size-1);
-//    // after sourcing
-//    for (int  i =0; i<size; i++){
-//        cout << myarr[i] << " ";
-//
-//    }
-//    cout << endl << endl;
-//
-//    return 0;
-//}

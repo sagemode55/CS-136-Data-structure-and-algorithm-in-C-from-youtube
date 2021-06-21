@@ -3,15 +3,7 @@
 //  CS 136 Lab 7 Graph
 //
 // 
-/****Intructor feedback DO NOT DELETE:
-45/100
--- output -10
--- memory management try/catch -10
---const -10
-unnecessary function calls-5
-function definitions inside main -10
--- implementation/design/logic -10
-****/
+
 
 
 #include "GraphType.h"

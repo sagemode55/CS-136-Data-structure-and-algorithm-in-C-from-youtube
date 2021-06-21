@@ -1,7 +1,6 @@
 //Yuwanaboon, Sitthiphol:
 //Lab 9
 
-****/
 #include "Warehouse.h"
 #include<vector>
 

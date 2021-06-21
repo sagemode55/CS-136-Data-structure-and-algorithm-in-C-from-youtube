@@ -1,15 +1,5 @@
 //Yuwanaboon, Sitthiphol:
 //Lab 9
-
-
-/****Intructor feedback DO NOT DELETE:
-NG 6/3/21 0/100
-
-
--- not approved
--- does not compy with the assignment description
-
-****/
 #include "Warehouse.h"
 #include<limits>
 

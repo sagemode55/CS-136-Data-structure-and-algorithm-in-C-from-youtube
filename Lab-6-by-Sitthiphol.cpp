@@ -79,9 +79,9 @@ int main() {
         cin >> itemCount;
 
        while (cin.fail() || itemCount <= 0)
-	    {
-		        cin.clear();
-		        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+       {
+	    cin.clear();
+	    cin.ignore(numeric_limits<streamsize>::max(), '\n');
             cout << "Enter a positive whole number..." << endl
                 << "What is the delivery count: ";
             cin >> itemCount;
@@ -94,7 +94,7 @@ int main() {
         while (cin.fail() || itemCost <= 0)
         {
             cin.clear();
-		        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	    cin.ignore(numeric_limits<streamsize>::max(), '\n');
             cout << "Enter a positive whole number..." << endl
                 << "What was the delivery cost: $";
             cin >> itemCost;
@@ -108,9 +108,9 @@ int main() {
         cin >> itemCount;
 
         while ( cin.fail()||itemCount <= 0)
-	      {
-		        cin.clear();
-		        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+	{
+	    cin.clear();
+	    cin.ignore(numeric_limits<streamsize>::max(), '\n');
             cout << "Enter a positive whole number..." << endl
                 << "How many widgets would you like to order: ";
             cin >> itemCount;

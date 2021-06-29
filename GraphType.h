@@ -6,9 +6,7 @@
 /****Intructor feedback DO NOT DELETE:
 
 ****/
-
 #include "QueType.h"
-
 template<class VertexType>
 // Assumption: VertexType is a type for which the "=", 
 // "==", and "<<" operators are defined
